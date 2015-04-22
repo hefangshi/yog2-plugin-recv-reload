@@ -12,7 +12,7 @@ yog2-plugin-recv-reload
 yog2 plugin install https://github.com/hefangshi/yog2-plugin-recv-reload
 ```
 
-2. 设定环境变量 `YOG_DEBUG` 为 `true`
+1. 设定环境变量 `YOG_DEBUG` 为 `true`
 
 ```
 export YOG_DEBUG=true
@@ -25,7 +25,7 @@ npm run debug
 npm run debug-win // for windows
 ```
 
-3. 配置yog2 app
+1. 配置yog2 app
 
 ```
 //fis-conf.js
@@ -39,7 +39,7 @@ fis.config.set('deploy', {
 });
 ```
 
-4. yog2 release
+1. yog2 release
 
 ```
 yog2 release -d remote
