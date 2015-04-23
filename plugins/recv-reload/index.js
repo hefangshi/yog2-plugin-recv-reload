@@ -32,6 +32,9 @@ module.exports['recv-reload'] = ['dispatcher',
             });
 
             app.post(conf.receiverUrl, function (req, res, next) {
+                if (uploadError) {
+                    return next(new Error('fs error'));
+                }
                 var goNext = function (err) {
                     uploading--;
                     return next(err);
@@ -39,22 +42,42 @@ module.exports['recv-reload'] = ['dispatcher',
                 uploading++;
                 total++;
                 startUploadStateCheck(conf.uploadTimeout, function () {
-                    reloadApp();
+                    // reload uploaded app
+                    for (var appName in waitingReloadApps) {
+                        reloadApp(appName);
+                    }
                     conf.onCacheClean && conf.onCacheClean();
+                    waitingReloadApps = {};
+                    uploadError = false;
                 });
                 // parse a file upload 
                 var form = new multiparty.Form();
                 form.parse(req, function (err, fields, files) {
                     if (err) return goNext(err);
                     if (!files.file || !files.file[0]) return goNext(new Error('invalid upload file'));
+                    res.end('0');
+                    // record uploading app
+                    if (fields.to) {
+                        var paths = fields.to.toString().split(path.sep);
+                        var appRootPath = yog.conf.dispatcher.appPath || path.join(yog.ROOT_PATH, 'app');
+                        var deployPath = path.join(yog.ROOT_PATH, fields.to.toString());
+                        var appPath = path.relative(appRootPath, deployPath);
+                        if (appPath.indexOf('..') !== 0) {
+                            var appName = appPath.split(path.sep)[0];
+                            if (appName) {
+                                waitingReloadApps[appName] = true;
+                            }
+                        }
+                    }
                     fs.move(
                         files.file[0].path, yog.ROOT_PATH + fields.to, {
                             clobber: true
                         },
                         function (err) {
-                            if (err) return goNext(err);
+                            if (err) {
+                                uploadError = true;
+                            }
                             uploading--;
-                            res.end('0');
                         }
                     );
                 });
@@ -64,7 +87,7 @@ module.exports['recv-reload'] = ['dispatcher',
                 res.end(req.protocol + '://' + req.get('host') + conf.receiverUrl + ' is ready to work');
             });
 
-            yog.reload = reloadApp;
+            // yog.reload = reloadApp;
         }
     }
 ];
@@ -76,6 +99,18 @@ module.exports['recv-reload'].defaultConf = {
     onCacheClean: null
 };
 
+
+/**
+ * 上传监测到的app
+ * @type {Object}
+ */
+var waitingReloadApps = {};
+
+/**
+ * 上传过程中是否有出现异常
+ * @type {Boolean}
+ */
+var uploadError = false;
 
 /**
  * 全局检测状态
@@ -161,6 +196,7 @@ function startUploadStateCheck(timeout, cb) {
 
 
 function reloadApp(appName) {
+    debuglog('reload app', appName);
     appName = appName || '';
     var appPath = yog.conf.dispatcher.appPath || path.join(yog.ROOT_PATH, 'app');
     var appModulePath = path.join(appPath, appName);
@@ -191,5 +227,7 @@ function cleanCache(modulePath) {
     var module = require.cache[modulePath];
     // remove reference for cache
     module.parent && module.parent.children.splice(module.parent.children.indexOf(module), 1);
+    module = null;
+    require.cache[modulePath] = null;
     delete require.cache[modulePath];
 }
