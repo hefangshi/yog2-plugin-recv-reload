@@ -4,6 +4,10 @@ yog2-plugin-recv-reload
 
 通过yog2-plugin-recv-reload，可以实现在使用YOG2框架进行开发工作时，上传APP代码无需重启服务就可以调试最新代码
 
+## 系统要求
+
+yog2-kernel > 0.2.0
+
 ## Usage
 
 ### 安装插件
