@@ -22,11 +22,13 @@ module.exports['recv-reload'] = ['dispatcher',
             app.get(conf.cleanCacheUrl + '/:app', function (req, res) {
                 reloadApp(req.params.app);
                 res.end('cache cleaned');
+                conf.onCacheClean && conf.onCacheClean(req.params.app);
             });
 
             app.get(conf.cleanCacheUrl, function (req, res) {
                 reloadApp();
                 res.end('cache cleaned');
+                conf.onCacheClean && conf.onCacheClean();
             });
 
             app.post(conf.receiverUrl, function (req, res, next) {
@@ -38,6 +40,7 @@ module.exports['recv-reload'] = ['dispatcher',
                 total++;
                 startUploadStateCheck(conf.uploadTimeout, function () {
                     reloadApp();
+                    conf.onCacheClean && conf.onCacheClean();
                 });
                 // parse a file upload 
                 var form = new multiparty.Form();
@@ -69,7 +72,8 @@ module.exports['recv-reload'] = ['dispatcher',
 module.exports['recv-reload'].defaultConf = {
     cleanCacheUrl: '/yog/reload',
     receiverUrl: '/yog/upload',
-    uploadTimeout: 30
+    uploadTimeout: 30,
+    onCacheClean: null
 };
 
 

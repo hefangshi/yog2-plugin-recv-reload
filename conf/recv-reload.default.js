@@ -15,5 +15,10 @@ module.exports['recv-reload'] = {
      * fis release 上传超时 (秒)
      * @type {Number}
      */
-    uploadTimeout: 30
+    uploadTimeout: 30,
+    /**
+     * 缓存清理回调，可以在这里添加自定义的缓存清理操作
+     * @return {[type]}         [description]
+     */
+    onCacheClean: function () {}
 };
