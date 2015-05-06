@@ -209,16 +209,16 @@ function reloadApp(appName) {
     var appPath = yog.conf.dispatcher.appPath || path.join(yog.ROOT_PATH, 'app');
     var appModulePath = path.join(appPath, appName);
     cleanCacheForFolder(appModulePath);
+    if (yog.dispatcher && yog.dispatcher.cleanCache) {
+        yog.dispatcher.cleanCache();
+        debuglog('clean dispatcher cache');
+    }
 }
 
 function reloadView() {
     if (yog.view && yog.view.cleanCache) {
         yog.view.cleanCache();
         debuglog('clean view cache');
-    }
-    if (yog.dispatcher && yog.dispatcher.cleanCache) {
-        yog.dispatcher.cleanCache();
-        debuglog('clean dispatcher cache');
     }
 }
 
