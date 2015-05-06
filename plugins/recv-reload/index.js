@@ -21,12 +21,14 @@ module.exports['recv-reload'] = ['dispatcher',
 
             app.get(conf.cleanCacheUrl + '/:app', function (req, res) {
                 reloadApp(req.params.app);
+                reloadView();
                 res.end('cache cleaned');
                 conf.onCacheClean && conf.onCacheClean(req.params.app);
             });
 
             app.get(conf.cleanCacheUrl, function (req, res) {
                 reloadApp();
+                reloadView();
                 res.end('cache cleaned');
                 conf.onCacheClean && conf.onCacheClean();
             });
@@ -43,8 +45,14 @@ module.exports['recv-reload'] = ['dispatcher',
                 total++;
                 startUploadStateCheck(conf.uploadTimeout, function () {
                     // reload uploaded app
-                    for (var appName in waitingReloadApps) {
-                        reloadApp(appName);
+                    var apps = Object.keys(waitingReloadApps);
+                    if (apps.length === 0) {
+                        reloadView();
+                    } else {
+                        for (var i = 0; i < apps.length; i++) {
+                            reloadApp(apps[i]);
+                        }
+                        reloadView();
                     }
                     conf.onCacheClean && conf.onCacheClean();
                     waitingReloadApps = {};
@@ -201,6 +209,9 @@ function reloadApp(appName) {
     var appPath = yog.conf.dispatcher.appPath || path.join(yog.ROOT_PATH, 'app');
     var appModulePath = path.join(appPath, appName);
     cleanCacheForFolder(appModulePath);
+}
+
+function reloadView() {
     if (yog.view && yog.view.cleanCache) {
         yog.view.cleanCache();
         debuglog('clean view cache');
