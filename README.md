@@ -6,7 +6,7 @@ yog2-plugin-recv-reload
 
 ## 系统要求
 
-yog2-kernel > 0.2.1
+yog2-kernel > 0.2.2
 
 ## Usage
 
