@@ -95,7 +95,8 @@ module.exports['recv-reload'] = ['dispatcher',
                 res.end(req.protocol + '://' + req.get('host') + conf.receiverUrl + ' is ready to work');
             });
 
-            // yog.reload = reloadApp;
+            yog.reloadApp = reloadApp;
+            yog.reloadView = reloadView;
         }
     }
 ];
