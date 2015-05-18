@@ -6,7 +6,7 @@ yog2-plugin-recv-reload
 
 ## 系统要求
 
-yog2-kernel > 0.2.2
+yog2-kernel >= 0.2.2
 
 ## Usage
 
@@ -18,13 +18,14 @@ yog2 plugin install https://github.com/hefangshi/yog2-plugin-recv-reload
 
 ### 开启插件
 
-设定环境变量 `YOG_DEBUG` 为 `true`
+设定环境变量 `YOG_DEBUG` 为 `true`后启动应用
 
 ```
 export YOG_DEBUG=true
+node app.js
 ```
 
-或者直接使用调试命令启动yog2
+也可以直接使用内置的调试命令启动yog2项目
 
 ```
 npm run debug
